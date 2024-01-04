@@ -297,7 +297,7 @@ class ffj_rencontre_json {
 
 
 
-  function get_score()
+  function get_score($post_id = 2)
 
   {
 
@@ -307,41 +307,89 @@ class ffj_rencontre_json {
 
     $s2=[0,0];
 
-    if(!empty($this->data['ScoreEquipe1'])) $s1=explode('v.',$this->data['ScoreEquipe1']);
+    $rencontres=$this->data['Rencontres'];
+    $plusieurs_rencontres=$rencontres?true:false;
+    if($plusieurs_rencontres){
+      $this->debug('plusieurs rencontres found'); $this->debug(count($rencontres));
+      foreach ($rencontres as $rencontre) {
+        if($rencontre['Id']==get_field( "id_rencontre_flux", $post_id )){
+            $this->debug('match avec la rencontre n°'.$post_id." qui a le flux d'url ".get_field( "url_flux", $post_id )." er l'id rencontre flux ".get_field( "id_rencontre_flux", $post_id ));
+            
+            if(!empty($rencontre['ScoreEquipe1'])) $s1=explode('v.',$rencontre['ScoreEquipe1']);
 
-    if(!empty($this->data['ScoreEquipe2'])) $s2=explode('v.',$this->data['ScoreEquipe2']);
+            if(!empty($rencontre['ScoreEquipe2'])) $s2=explode('v.',$rencontre['ScoreEquipe2']);
 
 
 
-    $b1=$this->data['BonusIpponEquipe1'] ?? 0;
+            $b1=$rencontre['BonusIpponEquipe1'] ?? 0;
 
-    $b2=$this->data['BonusIpponEquipe2'] ?? 0;
+            $b2=$rencontre['BonusIpponEquipe2'] ?? 0;
 
 
 
-    $result=[
+            $result=[
 
-      'equipe1'=>[
+              'equipe1'=>[
 
-        'score'  => $s1[0],
+                'score'  => $s1[0],
 
-        'points' =>(!empty($s1[1])?$s1[1]:0),
+                'points' =>(!empty($s1[1])?$s1[1]:0),
 
-        'bonus'  => $b1,
+                'bonus'  => $b1,
 
-      ],
+              ],
 
-      'equipe2'=>[
+              'equipe2'=>[
 
-        'score'  => $s2[0],
+                'score'  => $s2[0],
 
-        'points' =>(!empty($s2[1])?$s2[1]:0),
+                'points' =>(!empty($s2[1])?$s2[1]:0),
 
-        'bonus'  => $b2,
+                'bonus'  => $b2,
 
-      ],
+              ],
 
-    ];
+            ];
+        }
+      }
+    }else{
+      
+          if(!empty($this->data['ScoreEquipe1'])) $s1=explode('v.',$this->data['ScoreEquipe1']);
+
+          if(!empty($this->data['ScoreEquipe2'])) $s2=explode('v.',$this->data['ScoreEquipe2']);
+
+
+
+          $b1=$this->data['BonusIpponEquipe1'] ?? 0;
+
+          $b2=$this->data['BonusIpponEquipe2'] ?? 0;
+
+
+
+          $result=[
+
+            'equipe1'=>[
+
+              'score'  => $s1[0],
+
+              'points' =>(!empty($s1[1])?$s1[1]:0),
+
+              'bonus'  => $b1,
+
+            ],
+
+            'equipe2'=>[
+
+              'score'  => $s2[0],
+
+              'points' =>(!empty($s2[1])?$s2[1]:0),
+
+              'bonus'  => $b2,
+
+            ],
+
+          ];
+    }
 
     return $result;
 

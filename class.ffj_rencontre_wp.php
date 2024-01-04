@@ -358,7 +358,7 @@ class ffj_rencontre_wp {
 
 
 
-    $scores=$ffj->get_score();
+    $scores=$ffj->get_score($post_id);
 
     $this->debug('scores'); $this->debug($scores);
 
