@@ -114,7 +114,7 @@ class ffj_rencontre_json {
     if($plusieurs_rencontres){
       $this->debug('plusieurs rencontres found'); $this->debug(count($rencontres));
       foreach ($rencontres as $rencontre) {
-        if($rencontre['Id']==get_field( "id_rencontre_flux", $post_id )){
+        if($rencontre['IdRencontre']==get_field( "id_rencontre_flux", $post_id )){
           $this->debug('match avec la rencontre n°'.$post_id." qui a le flux d'url ".get_field( "url_flux", $post_id )." er l'id rencontre flux ".get_field( "id_rencontre_flux", $post_id ));
           if(!empty($rencontre['Equipe1'])) $result['equipe1']['libelle'] = $rencontre['Equipe1'];
 
@@ -158,7 +158,7 @@ class ffj_rencontre_json {
     if($plusieurs_rencontres){
       $this->debug('plusieurs rencontres found'); $this->debug(count($rencontres));
       foreach ($rencontres as $rencontre) {
-        if($rencontre['Id']==get_field( "id_rencontre_flux", $post_id )){
+        if($rencontre['IdRencontre']==get_field( "id_rencontre_flux", $post_id )){
           $this->debug('match avec la rencontre n°'.$post_id." qui a le flux d'url ".get_field( "url_flux", $post_id )." er l'id rencontre flux ".get_field( "id_rencontre_flux", $post_id ));
           $combats=$rencontre['Combats'];
 
@@ -312,7 +312,7 @@ class ffj_rencontre_json {
     if($plusieurs_rencontres){
       $this->debug('plusieurs rencontres found'); $this->debug(count($rencontres));
       foreach ($rencontres as $rencontre) {
-        if($rencontre['Id']==get_field( "id_rencontre_flux", $post_id )){
+        if($rencontre['IdRencontre']==get_field( "id_rencontre_flux", $post_id )){
             $this->debug('match avec la rencontre n°'.$post_id." qui a le flux d'url ".get_field( "url_flux", $post_id )." er l'id rencontre flux ".get_field( "id_rencontre_flux", $post_id ));
             
             if(!empty($rencontre['ScoreEquipe1'])) $s1=explode('v.',$rencontre['ScoreEquipe1']);
