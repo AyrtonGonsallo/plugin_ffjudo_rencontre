@@ -366,7 +366,7 @@ class ffj_rencontre_wp {
 
     $nb_combat_gagne_equipe_2 = $scores['equipe2']['score'];
 
-
+    $gagnant_combat_egalite="";
 
     $statut_rencontre='a_venir';
 
@@ -386,7 +386,9 @@ class ffj_rencontre_wp {
 
     	elseif($c['gagnant']==2) $nb_combat_gagne_equipe_2++;*/
 
-
+      if($c['EstDecisif']==true){
+        $gagnant_combat_egalite=$c['gagnant'];
+      }
 
       $c['combattant_1']['equipe'] = $equipes['equipe1'];
 
@@ -398,7 +400,7 @@ class ffj_rencontre_wp {
 
 			$judoka_equipe_2=$this->get_judoka_id($c['combattant_2']);
 
-
+      $this->debug('id des judokas: '.$judoka_equipe_1." et ".$judoka_equipe_2);
 
       // si au moins 1 combat a commencé la rencontre est 'en_cours'
 
@@ -492,6 +494,14 @@ class ffj_rencontre_wp {
       if($scores['equipe1']['points'] > $scores['equipe2']['points'] ) $equipe_gagnante='équipe 1';
 
       if($scores['equipe2']['points'] > $scores['equipe1']['points'] ) $equipe_gagnante='équipe 2';
+
+      $this->debug('gagnant combat egalite = '.$gagnant_combat_egalite);
+      if($gagnant_combat_egalite==1){
+        $equipe_gagnante='équipe 1';
+      }else if($gagnant_combat_egalite==2){
+        $equipe_gagnante='équipe 2';
+      }
+
 
     }
 
@@ -591,7 +601,15 @@ class ffj_rencontre_wp {
 
   	$this->debug(__FUNCTION__."($ffj_id,$nom,$prenom)");
 
+    //verifier si c'est un judoka non presenté
+    if(($nom=="-") && ($prenom=="-") ) {
+      $nom2 = "nom judoka ".$equipe["post_id"];
+      $prenom2 = "prenom judoka ".$equipe["post_id"];
+      $id=$this->get_judoka_from_name($nom2,$prenom2);
+      $this->debug("judoka non présenté. utilisation de ".$nom2." ".$prenom2);
+      return $id;
 
+    }
 
     // les combattant etranger remote id =null alors creation fiche judoka
 
@@ -729,7 +747,17 @@ class ffj_rencontre_wp {
 
       if( !empty($equipe['post_id']) ) {
 
-        $this->acf_update_field('equipe_judoka',[ $equipe['post_id'] ],$new_id);
+        //$this->acf_update_field('equipe_judoka',[ $equipe['post_id'] ],$new_id);
+        $post_id = $new_id; // ID du post que vous mettez à jour
+        $repeater_field_key = 'equipes_par_saisons'; // Clé du champ répétitif
+
+        // Définir les sous-champs à mettre à jour dans le répétiteur
+        $sub_fields = [
+            'equipe_judoka' => [$equipe['post_id']],
+            'saisons' => '2023-2024', // Exemple de valeur de la liste déroulante
+        ];
+        $this->acf_update_repeater_field($post_id, $repeater_field_key, $sub_fields);
+
 
       }
 
@@ -858,10 +886,26 @@ class ffj_rencontre_wp {
   	$this->debug(__FUNCTION__);
 
   	$id=0;
+    $args_judokas=array(
+      'post_type'=> 'judoka',
+      'posts_per_page' => 1,
+      'meta_query'     => array(
+              'relation' => 'OR',
+              array(
+                  'key'     => 'nom_judoka', // Interroger le champ 'nom_judoka'
+                  'value'   =>  $nom , // nom
+                  'compare' => 'LIKE'
+              ),
+              array(
+                  'key'     => 'prenom_judoka', // Interroger le champ 'prenom_judoka'
+                  'value'   =>  $prenom , // prenom
+                  'compare' => 'LIKE'
+              )
+          )
+      );
+    //$args=array('s'=>"$nom $prenom",'order'=> 'ASC', 'posts_per_page'=>1 );
 
-    $args=array('s'=>"$nom $prenom",'order'=> 'ASC', 'posts_per_page'=>1 );
-
-    $query=new WP_Query($args);
+    $query=new WP_Query($args_judokas);
 
     if( !$query->have_posts() ) {
 
@@ -1011,7 +1055,7 @@ class ffj_rencontre_wp {
 
     $combat_data['gagnant'] = $combat_data['vainqueur_equipe']; // 0,1,2,N
 
-
+    $combat_data['EstDecisif'] = $combat_data['EstDecisif'];
 
     $combat_data['categorie_de_poids']=str_replace('kg','',$combat_data['categorie_de_poids']);
 
@@ -1520,6 +1564,45 @@ class ffj_rencontre_wp {
   }
 
 
+
+  function acf_update_repeater_field($post_id, $repeater_field_key, $sub_fields) {
+    // Récupérer les données existantes du répétiteur
+    $repeater_values = get_field($repeater_field_key, $post_id);
+    
+    if (!$repeater_values) {
+        // Si aucune valeur n'existe, initialiser le tableau
+        $repeater_values = [];
+    }
+
+    // Ajouter une nouvelle ligne ou mettre à jour une ligne existante
+    $index_to_update = null;
+
+    // Vous pouvez définir une logique pour déterminer l'index à mettre à jour
+    // Par exemple, nous pourrions vouloir mettre à jour la première entrée
+    if (!empty($repeater_values)) {
+        $index_to_update = 0;
+    } else {
+        $index_to_update = count($repeater_values);
+    }
+
+    // Si une ligne existe à cet index, mettez-la à jour. Sinon, ajoutez une nouvelle ligne.
+    if (isset($repeater_values[$index_to_update])) {
+        $repeater_values[$index_to_update] = array_merge($repeater_values[$index_to_update], $sub_fields);
+    } else {
+        $repeater_values[$index_to_update] = $sub_fields;
+    }
+
+    // Enregistrer les nouvelles valeurs du répétiteur
+    $result = update_field($repeater_field_key, $repeater_values, $post_id);
+
+    if ($this->debug > 0) {
+        $txt_r = ($result === true ? 'ok' : ($result === false ? 'err' : $result));
+        $v = print_r($sub_fields, true);
+        $this->debug("update_repeter_field($repeater_field_key, $v, $post_id ) = $txt_r");
+    }
+
+    return $result;
+}
 
   /**
 

@@ -6,7 +6,7 @@ Plugin Name: ffjudo rencontre
 
 Description: Récupère les résultats du flux json d'une rencontre et met en cache l'affichage des résultats
 
-Version: 1.09
+Version: 1.10
 
 Author: Coudre Olivier
 
