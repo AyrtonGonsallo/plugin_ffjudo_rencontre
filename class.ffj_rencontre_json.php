@@ -308,7 +308,7 @@ class ffj_rencontre_json {
     $s2=[0,0];
 
     $rencontres=$this->data['Rencontres'];
-    $plusieurs_rencontres=$rencontres?true:false;
+    $plusieurs_rencontres=(count($rencontres)>1)?true:false;
     if($plusieurs_rencontres){
       $this->debug('plusieurs rencontres found'); $this->debug(count($rencontres));
       foreach ($rencontres as $rencontre) {
@@ -354,15 +354,15 @@ class ffj_rencontre_json {
       }
     }else{
       
-          if(!empty($this->data['ScoreEquipe1'])) $s1=explode('v.',$this->data['ScoreEquipe1']);
+          if(!empty($rencontres[0]['ScoreEquipe1'])) $s1=explode('v.',$rencontres[0]['ScoreEquipe1']);
 
-          if(!empty($this->data['ScoreEquipe2'])) $s2=explode('v.',$this->data['ScoreEquipe2']);
+          if(!empty($rencontres[0]['ScoreEquipe2'])) $s2=explode('v.',$rencontres[0]['ScoreEquipe2']);
 
 
 
-          $b1=$this->data['BonusIpponEquipe1'] ?? 0;
+          $b1=$rencontres[0]['BonusIpponEquipe1'] ?? 0;
 
-          $b2=$this->data['BonusIpponEquipe2'] ?? 0;
+          $b2=$rencontres[0]['BonusIpponEquipe2'] ?? 0;
 
 
 
