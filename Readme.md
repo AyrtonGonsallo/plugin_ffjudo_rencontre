@@ -39,3 +39,5 @@ class.ffj_rencontre_wp 604 verifier si c'est un judoka non presenté
 pour que ca marche 
 les equipes doivent avoir le champ ffj_nom egal au champ Equipe2 ou Equipe1 de rencontres dans le json de la federation
 il faut créer des judokas masqués avec nom="nom judoka [id_equipe]" et prenom="prenom judoka [id_equipe]"
+
+recupereation des points class.ffj_rencontre_json.php ligne 311
